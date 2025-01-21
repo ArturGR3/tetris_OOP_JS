@@ -1,0 +1,42 @@
+/* Create tetris game  */
+
+#board {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 1px;
+    width: 500px;
+    height: 700px;
+    border: 1px solid black;
+    margin: auto;
+}
+
+
+/* .cell {
+    background-color: rgb(136, 127, 127);
+} */
+
+#gameOverScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.game-over-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+#startButton {
+    position: absolute;
+    background-color: aqua;
+    top: 50px;
+    left: 50px;
+}
