@@ -1,3 +1,5 @@
+import { Square } from "./figures.js";
+
 export default class Board {
   constructor(nrow, ncol, defaultColor, activeColor, speedLevel) {
     this.nrow = nrow;
@@ -6,6 +8,7 @@ export default class Board {
     this.activeColor = activeColor; // when the cell is active
     this.speedLevel = speedLevel; // how fast the items are dropping
     this.currentInterval = null; // Track current interval
+    this.currentPiece = null;
     this.board = this.createEmptyBoard(); // initializing board with zeros
     this.domBoard = this.createDOMBoard(); // create a DOM object for the board
   }
@@ -69,14 +72,25 @@ export default class Board {
     // Checks if the new position/spawn is empty
     return this.board[0][column] === 0;
   }
+  drawPiece() {
+    // Get all cells of the piece (for square, this is 4 positions)
+    let cells = this.currentPiece.getCells();
+
+    // Update each cell
+    cells.forEach(([row, col]) => {
+      this.updateCell(row, col);
+    });
+  }
 
   createNewPiece() {
     // creating a new piece
-    let randomColumn = Math.floor(Math.random() * this.ncol); // create a random column to start
+    let randomColumn = Math.floor(Math.random() * (this.ncol - 1)); // create a random column to start (might be changed for a given Piece)
 
     if (this.canSpawnNewPiece(randomColumn)) {
-      this.updateCell(0, randomColumn); // Activate the cell at row 0
-      this.moveCellToStop(0, randomColumn);
+      this.currentPiece = new Square(0, randomColumn, this.activeColor);
+      console.log(this.currentPiece);
+      this.drawPiece(); // New method we'll create
+      this.movePieceToStop(); // We'll modify this
     } else {
       console.log("Game Over! Top row blocked at column", randomColumn);
       document.getElementById("gameOverScreen").style.display = "flex";
@@ -84,18 +98,29 @@ export default class Board {
     }
   }
 
-  moveCellToStop(row, col) {
-    // Clear any existing interval
-
+  movePieceToStop() {
     this.currentInterval = setInterval(() => {
-      if (this.stopMove(row + 1, col)) {
-        // if end of the board encountered or active cell encountered
-        clearInterval(this.currentInterval); // stop moving objects
-        this.currentInterval = null; // reset the interval back to null
-        this.createNewPiece(); // create new piece
+      // Get bottom cells from the piece itself
+      let bottomCells = this.currentPiece.getBottomCells();
+
+      // Check if any bottom cell would hit something in next position
+      let willHit = bottomCells.some(([r, c]) => this.stopMove(r + 1, c));
+
+      if (willHit) {
+        clearInterval(this.currentInterval);
+        this.currentInterval = null;
+        this.createNewPiece();
       } else {
-        this.moveCell(row, col);
-        row++;
+        // Clear current position
+        this.currentPiece.getCells().forEach(([r, c]) => {
+          this.clearCell(r, c);
+        });
+
+        // Move piece down
+        this.currentPiece.moveDown();
+
+        // Draw in new position
+        this.drawPiece();
       }
     }, this.speedLevel);
   }

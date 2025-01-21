@@ -3,7 +3,7 @@
 import Board from "./board.js";
 
 // console.log("Board");
-const newBoard = new Board(10, 10, "grey", "red", 10);
+const newBoard = new Board(10, 10, "grey", "red", 1000);
 
 // newBoard.domBoard.addEventListener("click", (e) => {
 //   //   e.target.style.backgroundColor = "black";
