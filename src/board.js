@@ -1,4 +1,4 @@
-import { Square } from "./figures.js";
+import { Square, Stick, BrokenStick } from "./figures.js";
 
 export default class Board {
   constructor(nrow, ncol, defaultColor, activeColor, speedLevel) {
@@ -11,6 +11,8 @@ export default class Board {
     this.currentPiece = null;
     this.board = this.createEmptyBoard(); // initializing board with zeros
     this.domBoard = this.createDOMBoard(); // create a DOM object for the board
+    this.setupControls();
+    this.startRestart();
   }
 
   createEmptyBoard() {
@@ -53,6 +55,7 @@ export default class Board {
   clearCell(row, col) {
     // turning it back to inactive status (from 1 to 0 and from active color to default)
     let cell = this.getCell(row, col);
+    console.log(cell);
     cell.style.backgroundColor = this.defaultColor;
     this.board[row][col] = 0;
   }
@@ -87,7 +90,9 @@ export default class Board {
     let randomColumn = Math.floor(Math.random() * (this.ncol - 1)); // create a random column to start (might be changed for a given Piece)
 
     if (this.canSpawnNewPiece(randomColumn)) {
-      this.currentPiece = new Square(0, randomColumn, this.activeColor);
+      //   let pieceType = [Square, Stick, BrokenStick][Math.floor(Math.random() * 3)];
+      let pieceType = Square;
+      this.currentPiece = new pieceType(0, randomColumn, this.activeColor);
       console.log(this.currentPiece);
       this.drawPiece(); // New method we'll create
       this.movePieceToStop(); // We'll modify this
@@ -96,6 +101,59 @@ export default class Board {
       document.getElementById("gameOverScreen").style.display = "flex";
       document.getElementById("startButton").style.display = "none";
     }
+  }
+
+  canMoveLeft() {
+    let leftCells = this.currentPiece.getLeftCells();
+    // Check if any left cell would hit wall or another piece
+    return !leftCells.some(([row, col]) => col <= 0 || this.board[row][col - 1] === 1);
+  }
+
+  moveLeft() {
+    if (this.canMoveLeft()) {
+      // Clear all current cells
+      this.currentPiece.getCells().forEach(([r, c]) => {
+        this.clearCell(r, c);
+      });
+
+      // Move piece left
+      this.currentPiece.col -= 1;
+
+      // Draw in new position
+      this.drawPiece();
+    }
+  }
+
+  canMoveRight() {
+    let rightCells = this.currentPiece.getRightCells();
+    // Check if any left cell would hit wall or another piece
+    return !rightCells.some(([row, col]) => col >= this.ncol - 1 || this.board[row][col + 1] === 1);
+  }
+
+  moveRight() {
+    if (this.canMoveRight()) {
+      // Clear all current cells
+      this.currentPiece.getCells().forEach(([r, c]) => {
+        this.clearCell(r, c);
+      });
+
+      // Move piece left
+      this.currentPiece.col += 1;
+
+      // Draw in new position
+      this.drawPiece();
+    }
+  }
+
+  setupControls() {
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") {
+        this.moveLeft();
+      }
+      if (e.key === "ArrowRight") {
+        this.moveRight();
+      }
+    });
   }
 
   movePieceToStop() {
@@ -123,6 +181,14 @@ export default class Board {
         this.drawPiece();
       }
     }, this.speedLevel);
+  }
+
+  startRestart() {
+    ["startButton", "restartButton"].forEach((buttonId) => {
+      document.getElementById(buttonId).addEventListener("click", () => {
+        this.resetGame();
+      });
+    });
   }
 
   resetGame() {
