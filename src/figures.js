@@ -33,7 +33,9 @@ export class Square extends Piece {
       [this.row + 1, this.col + 1], // bottom-right
     ];
   }
-
+  rotatePiece() {
+    this.isVertical;
+  }
   getBottomCells() {
     // For a square, the bottom cells are the bottom two cells
     return [
@@ -59,17 +61,15 @@ export class Square extends Piece {
 
 export class Stick extends Piece {
   getCells() {
-    if (this.isVertical) {
-      return [
-        [this.row, this.col],
-        [this.row + 1, this.col],
-      ];
-    } else {
-      return [
-        [this.row, this.col],
-        [this.row, this.col + 1],
-      ];
-    }
+    return this.isVertical
+      ? [
+          [this.row, this.col],
+          [this.row + 1, this.col],
+        ]
+      : [
+          [this.row, this.col],
+          [this.row, this.col + 1],
+        ];
   }
 
   rotatePiece() {
@@ -77,19 +77,17 @@ export class Stick extends Piece {
   }
 
   getBottomCells() {
-    // For a Line, the bottom cells are all sells
-    if (this.isVertical) return [[this.row + 1, this.col]];
-
-    if (!this.isVertical) return this.getCells();
+    // For a Line, the bottom cells are all cells
+    return this.isVertical ? [[this.row + 1, this.col]] : this.getCells();
   }
 
   getLeftCells() {
-    if (this.isVertical)
-      return [
-        [this.row, this.col],
-        [this.row + 1, this.col],
-      ];
-    if (!this.isVertical) return [[this.row, this.col]];
+    return this.isVertical
+      ? [
+          [this.row, this.col],
+          [this.row + 1, this.col],
+        ]
+      : [[this.row, this.col]];
   }
 
   getRightCells() {
@@ -103,34 +101,64 @@ export class Stick extends Piece {
 }
 
 export class BrokenStick extends Piece {
+  constructor(row, col, color) {
+    super(row, col, color);
+    this.isVertical = true; // Initial orientation
+  }
+
   getCells() {
-    return [
-      [this.row, this.col],
-      [this.row + 1, this.col],
-      [this.row + 1, this.col + 1],
-      [this.row + 2, this.col + 1],
-    ];
+    return this.isVertical
+      ? [
+          [this.row, this.col],
+          [this.row + 1, this.col],
+          [this.row + 1, this.col + 1],
+          [this.row + 2, this.col + 1],
+        ]
+      : [
+          [this.row, this.col],
+          [this.row, this.col + 1],
+          [this.row + 1, this.col + 1],
+          [this.row + 1, this.col + 2],
+        ];
+  }
+
+  rotatePiece() {
+    this.isVertical = !this.isVertical;
   }
 
   getBottomCells() {
-    // For a Line, the bottom cells are all sells
-    return [
-      [this.row + 1, this.col],
-      [this.row + 2, this.col + 1],
-    ];
+    return this.isVertical
+      ? [
+          [this.row + 1, this.col],
+          [this.row + 2, this.col + 1],
+        ]
+      : [
+          [this.row + 1, this.col + 1],
+          [this.row + 1, this.col + 2],
+        ];
   }
 
   getLeftCells() {
-    return [
-      [this.row, this.col], // top-left
-      [this.row + 1, this.col], // middle-left
-    ];
+    return this.isVertical
+      ? [
+          [this.row, this.col], // top-left
+          [this.row + 1, this.col], // middle-left
+        ]
+      : [
+          [this.row, this.col], // top-left
+          // [this.row + 1, this.col + 1], // bottom-left
+        ];
   }
 
   getRightCells() {
-    return [
-      [this.row + 1, this.col + 1], // middle-right
-      [this.row + 2, this.col + 1], // bottom-right
-    ];
+    return this.isVertical
+      ? [
+          [this.row + 1, this.col + 1], // middle-right
+          [this.row + 2, this.col + 1], // bottom-right
+        ]
+      : [
+          // [this.row, this.col + 1], // top-right
+          [this.row + 1, this.col + 2], // bottom-right
+        ];
   }
 }

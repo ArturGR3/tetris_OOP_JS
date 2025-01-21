@@ -194,8 +194,30 @@ export default class Board {
     }, this.speedLevel);
   }
 
+  canRotate() {
+    if (!this.currentPiece) return false;
+
+    // Check potential new positions
+    this.currentPiece.isVertical = !this.currentPiece.isVertical;
+    const newPositions = this.currentPiece.getCells();
+    this.currentPiece.isVertical = !this.currentPiece.isVertical;
+
+    // Only check for boundaries and collisions with other pieces
+    return !newPositions.some(
+      ([row, col]) =>
+        row < 0 || row >= this.nrow || col < 0 || col >= this.ncol || (this.board[row][col] === 1 && !this.isPartOfCurrentPiece(row, col))
+    );
+  }
+
+  // Helper method to check if a position is part of current piece
+  isPartOfCurrentPiece(row, col) {
+    return this.currentPiece.getCells().some(([r, c]) => r === row && c === col);
+  }
+
   rotatePiece() {
-    if (this.currentPiece) {
+    console.log(this.canRotate());
+    if (this.currentPiece && this.canRotate()) {
+      // Only rotate if we can
       this.currentPiece.getCells().forEach(([r, c]) => {
         this.clearCell(r, c);
       });
