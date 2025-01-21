@@ -36,24 +36,20 @@ export default class Board {
     return board;
   }
 
+  getCell(row, col) {
+    return document.querySelector(`#board .cell[data-row='${row}'][data-col='${col}']`);
+  }
+
   updateCell(row, col) {
     // turning the cell into active cell, by changing its color and status from 0 to 1
-    try {
-      if (row < 0 || row >= this.nrow || col < 0 || col >= this.ncol) {
-        throw new Error("Row or column is out of bounds");
-      }
-    } catch (error) {
-      console.error(error);
-      return;
-    }
-    let cell = document.querySelector(`#board .cell[data-row='${row}'][data-col='${col}']`);
+    let cell = this.getCell(row, col);
     cell.style.backgroundColor = this.activeColor;
     this.board[row][col] = 1;
   }
 
   clearCell(row, col) {
     // turning it back to inactive status (from 1 to 0 and from active color to default)
-    let cell = document.querySelector(`#board .cell[data-row='${row}'][data-col='${col}']`);
+    let cell = this.getCell(row, col);
     cell.style.backgroundColor = this.defaultColor;
     this.board[row][col] = 0;
   }
@@ -79,6 +75,7 @@ export default class Board {
     let randomColumn = Math.floor(Math.random() * this.ncol); // create a random column to start
 
     if (this.canSpawnNewPiece(randomColumn)) {
+      this.updateCell(0, randomColumn); // Activate the cell at row 0
       this.moveCellToStop(0, randomColumn);
     } else {
       console.log("Game Over! Top row blocked at column", randomColumn);

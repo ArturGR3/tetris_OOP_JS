@@ -23,5 +23,6 @@ document.getElementById("startButton").addEventListener("click", () => {
 });
 // newBoard.moveCellToStop(0, 1, 500);
 
+// newBoard.updateCell(-1, 0);
 // newBoard.moveCellToStop(0, 1);
 // newBoard.createNewPiece();
