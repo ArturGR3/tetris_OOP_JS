@@ -12,7 +12,6 @@ export default class Board {
     this.board = this.createEmptyBoard(); // initializing board with zeros
     this.domBoard = this.createDOMBoard(); // create a DOM object for the board
     this.setupControls();
-    this.startRestart();
   }
 
   createEmptyBoard() {
@@ -55,7 +54,7 @@ export default class Board {
   clearCell(row, col) {
     // turning it back to inactive status (from 1 to 0 and from active color to default)
     let cell = this.getCell(row, col);
-    console.log(cell);
+    // console.log(cell);
     cell.style.backgroundColor = this.defaultColor;
     this.board[row][col] = 0;
   }
@@ -75,6 +74,7 @@ export default class Board {
     // Checks if the new position/spawn is empty
     return this.board[0][column] === 0;
   }
+
   drawPiece() {
     // Get all cells of the piece (for square, this is 4 positions)
     let cells = this.currentPiece.getCells();
@@ -90,14 +90,12 @@ export default class Board {
     let randomColumn = Math.floor(Math.random() * (this.ncol - 1)); // create a random column to start (might be changed for a given Piece)
 
     if (this.canSpawnNewPiece(randomColumn)) {
-      //   let pieceType = [Square, Stick, BrokenStick][Math.floor(Math.random() * 3)];
-      let pieceType = Square;
+      let pieceType = [Square, Stick, BrokenStick][Math.floor(Math.random() * 3)];
+      //   let pieceType = Square;
       this.currentPiece = new pieceType(0, randomColumn, this.activeColor);
-      console.log(this.currentPiece);
       this.drawPiece(); // New method we'll create
       this.movePieceToStop(); // We'll modify this
     } else {
-      console.log("Game Over! Top row blocked at column", randomColumn);
       document.getElementById("gameOverScreen").style.display = "flex";
       document.getElementById("startButton").style.display = "none";
     }
@@ -146,13 +144,26 @@ export default class Board {
   }
 
   setupControls() {
+    // Keyboard controls
     document.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft") {
-        this.moveLeft();
+      switch (e.key) {
+        case "ArrowLeft":
+          this.moveLeft();
+          break;
+        case "ArrowRight":
+          this.moveRight();
+          break;
+        case "Shift":
+          this.rotatePiece();
+          break;
       }
-      if (e.key === "ArrowRight") {
-        this.moveRight();
-      }
+    });
+
+    // Button controls
+    ["startButton", "restartButton"].forEach((buttonId) => {
+      document.getElementById(buttonId).addEventListener("click", () => {
+        this.resetGame();
+      });
     });
   }
 
@@ -160,10 +171,10 @@ export default class Board {
     this.currentInterval = setInterval(() => {
       // Get bottom cells from the piece itself
       let bottomCells = this.currentPiece.getBottomCells();
-
+      console.log(`bottomcells: ${bottomCells}`);
       // Check if any bottom cell would hit something in next position
       let willHit = bottomCells.some(([r, c]) => this.stopMove(r + 1, c));
-
+      console.log(`willHit ${willHit}`);
       if (willHit) {
         clearInterval(this.currentInterval);
         this.currentInterval = null;
@@ -183,12 +194,14 @@ export default class Board {
     }, this.speedLevel);
   }
 
-  startRestart() {
-    ["startButton", "restartButton"].forEach((buttonId) => {
-      document.getElementById(buttonId).addEventListener("click", () => {
-        this.resetGame();
+  rotatePiece() {
+    if (this.currentPiece) {
+      this.currentPiece.getCells().forEach(([r, c]) => {
+        this.clearCell(r, c);
       });
-    });
+      this.currentPiece.rotatePiece();
+      this.drawPiece();
+    }
   }
 
   resetGame() {
