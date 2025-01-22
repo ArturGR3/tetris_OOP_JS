@@ -8,21 +8,22 @@
   </head>
   <body>
     <div class="game-container">
-      <div id="board"></div>
-      <div class="scorediv">
-        <h2 id="score">Score:</h2>
-        <span id="scorePoints">0</span>
+      <div class="controls">
+        <button id="start-button">Start Game</button>
+        <div class="scorediv">
+          <h2 id="score">Score:</h2>
+          <span id="score-points">0</span>
+        </div>
       </div>
+      <div id="board"></div>
     </div>
 
-    <div id="gameOverScreen">
+    <div id="game-over-screen">
       <div class="game-over-content">
         <h1>Game Over!</h1>
-        <button id="restartButton">Play Again</button>
+        <button id="restart-button">Play Again</button>
       </div>
     </div>
-
-    <button id="startButton">Start Game</button>
   </body>
   <script src="src/index.js" type="module"></script>
 </html>

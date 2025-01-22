@@ -28,6 +28,11 @@ export default class Board {
   createDOMBoard() {
     // creating a DOM object for each cell in my matrix with ability to access with data-row and data-col
     let board = document.getElementById("board");
+
+    // Set the grid template columns and rows based on ncol and nrow
+    board.style.gridTemplateColumns = `repeat(${this.ncol}, 1fr)`;
+    board.style.gridTemplateRows = `repeat(${this.nrow}, 1fr)`;
+
     for (let i = 0; i < this.nrow; i++) {
       for (let j = 0; j < this.ncol; j++) {
         let cell = document.createElement("div");
@@ -96,8 +101,7 @@ export default class Board {
       this.drawPiece();
       this.movePieceToStop();
     } else {
-      document.getElementById("gameOverScreen").style.display = "flex";
-      document.getElementById("startButton").style.display = "none";
+      document.getElementById("game-over-screen").style.display = "flex";
     }
   }
 
@@ -164,7 +168,7 @@ export default class Board {
     });
 
     // Button controls
-    ["startButton", "restartButton"].forEach((buttonId) => {
+    ["start-button", "restart-button"].forEach((buttonId) => {
       document.getElementById(buttonId).addEventListener("click", () => {
         this.resetGame();
       });
@@ -231,7 +235,7 @@ export default class Board {
 
   scoring() {
     this.score++;
-    let scoreDom = document.getElementById("scorePoints");
+    let scoreDom = document.getElementById("score-points");
     scoreDom.innerText = this.score;
   }
 
@@ -271,7 +275,7 @@ export default class Board {
     cells.forEach((cell) => (cell.style.backgroundColor = this.defaultColor));
 
     // hide the gameOver screen
-    document.getElementById("gameOverScreen").style.display = "none";
+    document.getElementById("game-over-screen").style.display = "none";
 
     // unhide the main board
     this.domBoard.style.display = "grid";
