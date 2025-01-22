@@ -45,18 +45,17 @@
   justify-content: center;
   align-items: center;
   position: absolute;
-  top: 70px;
+  top: 60px;
   left: 50px;
+  gap: 10px; /* Added space between score and scorePoints */
 }
 
 #score {
   background-color: rgb(143, 243, 130);
-  margin-right: 10px; /* Added space between score and scorePoints */
 }
 
 #scorePoints {
   color: black;
-  background-color: rgb(143, 243, 130);
   font-weight: 200;
-  font-size: 50px;
+  font-size: 20pt;
 }

@@ -11,7 +11,7 @@ export default class Board {
     this.currentPiece = null;
     this.board = this.createEmptyBoard(); // initializing board with zeros
     this.domBoard = this.createDOMBoard(); // create a DOM object for the board
-    this.setupControls();
+    this.setupControls(); // Setup keys strokes
     this.score = 0;
   }
 
@@ -92,10 +92,9 @@ export default class Board {
 
     if (this.canSpawnNewPiece(randomColumn)) {
       let pieceType = [Square, Stick, BrokenStick][Math.floor(Math.random() * 3)];
-      //   let pieceType = Square;
       this.currentPiece = new pieceType(0, randomColumn, this.activeColor);
-      this.drawPiece(); // New method we'll create
-      this.movePieceToStop(); // We'll modify this
+      this.drawPiece();
+      this.movePieceToStop();
     } else {
       document.getElementById("gameOverScreen").style.display = "flex";
       document.getElementById("startButton").style.display = "none";
@@ -105,7 +104,11 @@ export default class Board {
   canMoveLeft() {
     let leftCells = this.currentPiece.getLeftCells();
     // Check if any left cell would hit wall or another piece
-    return !leftCells.some(([row, col]) => col <= 0 || this.board[row][col - 1] === 1);
+    return !leftCells.some(
+      ([row, col]) =>
+        col <= 0 || // boarder check
+        this.board[row][col - 1] === 1 // occupied check
+    );
   }
 
   moveLeft() {
@@ -172,10 +175,8 @@ export default class Board {
     this.currentInterval = setInterval(() => {
       // Get bottom cells from the piece itself
       let bottomCells = this.currentPiece.getBottomCells();
-      console.log(`bottomcells: ${bottomCells}`);
       // Check if any bottom cell would hit something in next position
       let willHit = bottomCells.some(([r, c]) => this.stopMove(r + 1, c));
-      console.log(`willHit ${willHit}`);
       if (willHit) {
         clearInterval(this.currentInterval);
         this.currentInterval = null;
@@ -237,8 +238,8 @@ export default class Board {
   removeRowIfFilled() {
     for (let i = 0; i < this.board.length; i++) {
       if (this.board[i].every((cell) => cell === 1)) {
+        // full row completion
         this.scoring();
-        // Updating active flag on the row that is complete and rearanging it 'colapsing'
         this.board[i].fill(0);
         this.board = [this.board[i], ...this.board.slice(0, i), ...this.board.slice(i + 1)];
 
