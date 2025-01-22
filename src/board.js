@@ -12,6 +12,7 @@ export default class Board {
     this.board = this.createEmptyBoard(); // initializing board with zeros
     this.domBoard = this.createDOMBoard(); // create a DOM object for the board
     this.setupControls();
+    this.score = 0;
   }
 
   createEmptyBoard() {
@@ -227,10 +228,17 @@ export default class Board {
     }
   }
 
+  scoring() {
+    this.score++;
+    let scoreDom = document.getElementById("scorePoints");
+    scoreDom.innerText = this.score;
+  }
+
   removeRowIfFilled() {
     for (let i = 0; i < this.board.length; i++) {
       if (this.board[i].every((cell) => cell === 1)) {
-        // Update data array first
+        this.scoring();
+        // Updating active flag on the row that is complete and rearanging it 'colapsing'
         this.board[i].fill(0);
         this.board = [this.board[i], ...this.board.slice(0, i), ...this.board.slice(i + 1)];
 
