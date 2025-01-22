@@ -178,6 +178,7 @@ export default class Board {
       if (willHit) {
         clearInterval(this.currentInterval);
         this.currentInterval = null;
+        this.removeRowIfFilled();
         this.createNewPiece();
       } else {
         // Clear current position
@@ -223,6 +224,27 @@ export default class Board {
       });
       this.currentPiece.rotatePiece();
       this.drawPiece();
+    }
+  }
+
+  removeRowIfFilled() {
+    for (let i = 0; i < this.board.length; i++) {
+      if (this.board[i].every((cell) => cell === 1)) {
+        // Update data array first
+        this.board[i].fill(0);
+        this.board = [this.board[i], ...this.board.slice(0, i), ...this.board.slice(i + 1)];
+
+        // Now update all cells visually to match the new board state
+        for (let row = 0; row < this.board.length; row++) {
+          for (let col = 0; col < this.board[row].length; col++) {
+            if (this.board[row][col] === 1) {
+              this.updateCell(row, col);
+            } else {
+              this.clearCell(row, col);
+            }
+          }
+        }
+      }
     }
   }
 
