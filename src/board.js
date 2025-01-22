@@ -150,12 +150,12 @@ export default class Board {
       this.drawPiece();
     }
   }
-
   setupControls() {
     // Keyboard controls
     document.addEventListener("keydown", (e) => {
       switch (e.key) {
         case "ArrowLeft":
+          console.log("dada");
           this.moveLeft();
           break;
         case "ArrowRight":
