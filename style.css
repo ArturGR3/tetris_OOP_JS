@@ -9,14 +9,36 @@
 .controls {
   display: flex;
   justify-content: space-between;
-  height: 10vh; /*Adjust to fill the viewport height*/
+  align-items: center;
+  height: 10vh; /* Adjust to fill the viewport height */
   width: 75vh;
   margin-bottom: 1vh;
   padding: 1vh;
+  position: relative;
+}
+
+.guides {
+  display: flex;
+  justify-content: space-around;
+  background-color: antiquewhite;
+  font-size: 2vh;
+}
+
+.guide-item {
+  display: flex;
+  flex-direction: row;
+}
+
+.guides img {
+  height: 5vh;
+  width: auto;
+  padding-left: 1vh;
+  padding-right: 2vh;
 }
 
 #start-button {
   background-color: aqua;
+  padding: 3vh;
 }
 
 #board {
