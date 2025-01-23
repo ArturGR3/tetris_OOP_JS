@@ -71,37 +71,15 @@ export default class Board {
     this.updateCell(row + 1, col);
   }
 
-  stopMove(row, col) {
-    // if we hit the end of the block or next cell is active
-    return row >= this.nrow || this.board[row][col] === 1;
-  }
-
-  canSpawnNewPiece(column) {
-    // Checks if the new position/spawn is empty
-    return this.board[0][column] === 0;
-  }
-
-  drawPiece() {
-    // Get all cells of the piece (for square, this is 4 positions)
-    let cells = this.currentPiece.getCells();
-
-    // Update each cell
-    cells.forEach(([row, col]) => {
-      this.updateCell(row, col);
-    });
-  }
-
   createNewPiece() {
-    // creating a new piece
-    let randomColumn = this.getRandomColumn(); // create a random column to start (might be changed for a given Piece)
+    let randomColumn = this.getRandomColumn();
 
     if (this.canSpawnNewPiece(randomColumn)) {
-      let shapeType = this.getRandomShape();
-      this.currentPiece = new shapeType(0, randomColumn, this.activeColor);
+      this.currentPiece = this.createPiece(randomColumn);
       this.drawPiece();
       this.movePieceToStop();
     } else {
-      document.querySelector(".game-over-screen").style.display = "flex";
+      this.showGameOver();
     }
   }
 
@@ -109,66 +87,73 @@ export default class Board {
     return Math.floor(Math.random() * (this.ncol - 1));
   }
 
+  canSpawnNewPiece(column) {
+    // Checks if the new position/spawn is empty
+    return this.board[0][column] === 0;
+  }
+
   getRandomShape() {
     const shapeTypes = [Square, Stick, BrokenStick];
     return shapeTypes[Math.floor(Math.random() * shapeTypes.length)];
+    s;
+  }
+
+  createPiece(column) {
+    const PieceType = this.getRandomShape();
+    return new PieceType(0, column, this.activeColor);
+  }
+
+  drawPiece() {
+    let cells = this.currentPiece.getCells();
+    cells.forEach(([row, col]) => {
+      this.updateCell(row, col);
+    });
+  }
+
+  showGameOver() {
+    document.querySelector(".game-over-screen").style.display = "flex";
+  }
+
+  moveShapeLeft() {
+    if (this.canMoveLeft()) {
+      this.clearCurrentShape();
+      this.currentPiece.moveLeft();
+      this.drawPiece();
+    }
   }
 
   canMoveLeft() {
     let leftCells = this.currentPiece.getLeftCells();
-    // Check if any left cell would hit wall or another piece
-    return !leftCells.some(
-      ([row, col]) =>
-        col <= 0 || // boarder check
-        this.board[row][col - 1] === 1 // occupied check
-    );
+    return !leftCells.some(([row, col]) => col <= 0 || this.board[row][col - 1] === 1);
   }
 
-  moveLeft() {
-    if (this.canMoveLeft()) {
-      // Clear all current cells
-      this.currentPiece.getCells().forEach(([r, c]) => {
-        this.clearCell(r, c);
-      });
+  clearCurrentShape() {
+    this.currentPiece.getCells().forEach(([r, c]) => {
+      this.clearCell(r, c);
+    });
+  }
 
-      // Move piece left
-      this.currentPiece.col -= 1;
-
-      // Draw in new position
+  moveShapeRight() {
+    if (this.canMoveRight()) {
+      this.clearCurrentShape();
+      this.currentPiece.moveRight();
       this.drawPiece();
     }
   }
-
   canMoveRight() {
     let rightCells = this.currentPiece.getRightCells();
-    // Check if any left cell would hit wall or another piece
     return !rightCells.some(([row, col]) => col >= this.ncol - 1 || this.board[row][col + 1] === 1);
   }
 
-  moveRight() {
-    if (this.canMoveRight()) {
-      // Clear all current cells
-      this.currentPiece.getCells().forEach(([r, c]) => {
-        this.clearCell(r, c);
-      });
-
-      // Move piece left
-      this.currentPiece.col += 1;
-
-      // Draw in new position
-      this.drawPiece();
-    }
-  }
   setupControls() {
-    // Keyboard controls
     document.addEventListener("keydown", (e) => {
       switch (e.key) {
         case "ArrowLeft":
           console.log("dada");
-          this.moveLeft();
+          this.moveShapeLeft();
           break;
         case "ArrowRight":
-          this.moveRight();
+          this.moveShapeRight();
           break;
         case "Shift":
           this.rotatePiece();
@@ -179,35 +164,56 @@ export default class Board {
     // Button controls
     [".controls__start-button", ".restart-button"].forEach((buttonId) => {
       document.querySelector(buttonId).addEventListener("click", () => {
+        // console.log("dadsa");
         this.resetGame();
       });
     });
   }
 
   movePieceToStop() {
+    this.startInterval();
+  }
+
+  startInterval() {
     this.currentInterval = setInterval(() => {
-      // Get bottom cells from the piece itself
-      let bottomCells = this.currentPiece.getBottomCells();
-      // Check if any bottom cell would hit something in next position
-      let willHit = bottomCells.some(([r, c]) => this.stopMove(r + 1, c));
-      if (willHit) {
-        clearInterval(this.currentInterval);
-        this.currentInterval = null;
-        this.removeRowIfFilled();
-        this.createNewPiece();
-      } else {
-        // Clear current position
-        this.currentPiece.getCells().forEach(([r, c]) => {
-          this.clearCell(r, c);
-        });
-
-        // Move piece down
-        this.currentPiece.moveDown();
-
-        // Draw in new position
-        this.drawPiece();
-      }
+      this.handlePieceMovement();
     }, this.speedLevel);
+  }
+
+  handlePieceMovement() {
+    if (this.willCollide()) {
+      this.handleCollision();
+    } else {
+      this.moveCurrentPieceDown();
+    }
+  }
+
+  willCollide() {
+    let bottomCells = this.currentPiece.getBottomCells();
+    return bottomCells.some(([r, c]) => this.stopMove(r + 1, c));
+  }
+
+  stopMove(row, col) {
+    return row >= this.nrow || this.board[row][col] === 1;
+  }
+
+  handleCollision() {
+    this.stopInterval();
+    this.removeRowIfFilled();
+    this.createNewPiece();
+  }
+
+  stopInterval() {
+    clearInterval(this.currentInterval);
+    this.currentInterval = null;
+  }
+
+  moveCurrentPieceDown() {
+    this.currentPiece.getCells().forEach(([r, c]) => {
+      this.clearCell(r, c);
+    });
+    this.currentPiece.moveDown();
+    this.drawPiece();
   }
 
   canRotate() {
@@ -241,34 +247,44 @@ export default class Board {
       this.drawPiece();
     }
   }
+  // --- Completing the roww
+  removeRowIfFilled() {
+    for (let row = 0; row < this.board.length; row++) {
+      if (this.isRowComplete(row)) {
+        this.scoreIt();
+        this.collapseWhenComplete(row);
+        this.updateVisualBoard();
+      }
+    }
+  }
 
-  scoring() {
+  scoreIt() {
     this.score++;
     let scoreDom = document.querySelector(".score-points");
     scoreDom.innerText = this.score;
   }
 
-  removeRowIfFilled() {
-    for (let i = 0; i < this.board.length; i++) {
-      if (this.board[i].every((cell) => cell === 1)) {
-        // full row completion
-        this.scoring();
-        this.board[i].fill(0);
-        this.board = [this.board[i], ...this.board.slice(0, i), ...this.board.slice(i + 1)];
+  isRowComplete(row) {
+    return this.board[row].every((cell) => cell === 1);
+  }
 
-        // Now update all cells visually to match the new board state
-        for (let row = 0; row < this.board.length; row++) {
-          for (let col = 0; col < this.board[row].length; col++) {
-            if (this.board[row][col] === 1) {
-              this.updateCell(row, col);
-            } else {
-              this.clearCell(row, col);
-            }
-          }
+  collapseWhenComplete(row) {
+    this.board[row].fill(0);
+    this.board = [this.board[row], ...this.board.slice(0, row), ...this.board.slice(row + 1)];
+  }
+
+  updateVisualBoard() {
+    for (let row = 0; row < this.board.length; row++) {
+      for (let col = 0; col < this.board[row].length; col++) {
+        if (this.board[row][col] === 1) {
+          this.updateCell(row, col);
+        } else {
+          this.clearCell(row, col);
         }
       }
     }
   }
+  // --- Completing the roww
 
   resetGame() {
     // Clear any running interval
