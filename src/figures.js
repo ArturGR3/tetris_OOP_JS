@@ -27,20 +27,19 @@ export default class Shape {
 export class Square extends Shape {
   getCells() {
     return [
-      [this.row, this.col], // top-left
-      [this.row, this.col + 1], // top-right
-      [this.row + 1, this.col], // bottom-left
-      [this.row + 1, this.col + 1], // bottom-right
+      [this.row, this.col],
+      [this.row, this.col + 1],
+      [this.row + 1, this.col],
+      [this.row + 1, this.col + 1],
     ];
   }
-  rotatePiece() {
+  rotateFlg() {
     this.isVertical;
   }
   getBottomCells() {
-    // For a square, the bottom cells are the bottom two cells
     return [
-      [this.row + 1, this.col], // bottom-left
-      [this.row + 1, this.col + 1], // bottom-right
+      [this.row + 1, this.col],
+      [this.row + 1, this.col + 1],
     ];
   }
 
@@ -72,12 +71,11 @@ export class Stick extends Shape {
         ];
   }
 
-  rotatePiece() {
+  rotateFlg() {
     this.isVertical = !this.isVertical;
   }
 
   getBottomCells() {
-    // For a Line, the bottom cells are all cells
     return this.isVertical ? [[this.row + 1, this.col]] : this.getCells();
   }
 
@@ -122,7 +120,7 @@ export class BrokenStick extends Shape {
         ];
   }
 
-  rotatePiece() {
+  rotateFlg() {
     this.isVertical = !this.isVertical;
   }
 
@@ -146,7 +144,6 @@ export class BrokenStick extends Shape {
         ]
       : [
           [this.row, this.col], // top-left
-          // [this.row + 1, this.col + 1], // bottom-left
         ];
   }
 
@@ -157,7 +154,6 @@ export class BrokenStick extends Shape {
           [this.row + 2, this.col + 1], // bottom-right
         ]
       : [
-          // [this.row, this.col + 1], // top-right
           [this.row + 1, this.col + 2], // bottom-right
         ];
   }
