@@ -145,29 +145,35 @@ export default class Board {
     return !rightCells.some(([row, col]) => col >= this.ncol - 1 || this.board[row][col + 1] === 1);
   }
 
-  setupControls() {
+  setupKeyboardControls() {
     document.addEventListener("keydown", (e) => {
-      switch (e.key) {
-        case "ArrowLeft":
-          console.log("dada");
-          this.moveShapeLeft();
-          break;
-        case "ArrowRight":
-          this.moveShapeRight();
-          break;
-        case "Shift":
-          this.rotatePiece();
-          break;
-      }
+      this.handleKeyPress(e);
     });
+  }
 
-    // Button controls
+  setupButtonControls() {
     [".controls__start-button", ".restart-button"].forEach((buttonId) => {
       document.querySelector(buttonId).addEventListener("click", () => {
-        // console.log("dadsa");
         this.resetGame();
       });
     });
+  }
+
+  handleKeyPress(e) {
+    const keyActions = {
+      ArrowLeft: () => this.moveShapeLeft(),
+      ArrowRight: () => this.moveShapeRight(),
+      Shift: () => this.rotatePiece(),
+    };
+
+    if (keyActions[e.key]) {
+      keyActions[e.key]();
+    }
+  }
+
+  setupControls() {
+    this.setupKeyboardControls();
+    this.setupButtonControls();
   }
 
   movePieceToStop() {
@@ -217,18 +223,31 @@ export default class Board {
   }
 
   canRotate() {
-    if (!this.currentPiece) return false;
+    if (!this.currentPiece) {
+      return false;
+    }
 
-    // Check potential new positions
-    this.currentPiece.isVertical = !this.currentPiece.isVertical;
-    const newPositions = this.currentPiece.getCells();
-    this.currentPiece.isVertical = !this.currentPiece.isVertical;
+    const newPositions = this.getRotatedPositions();
+    return this.isValidRotation(newPositions);
+  }
 
-    // Only check for boundaries and collisions with other pieces
-    return !newPositions.some(
-      ([row, col]) =>
-        row < 0 || row >= this.nrow || col < 0 || col >= this.ncol || (this.board[row][col] === 1 && !this.isPartOfCurrentPiece(row, col))
-    );
+  getRotatedPositions() {
+    this.currentPiece.isVertical = !this.currentPiece.isVertical;
+    const positions = this.currentPiece.getCells();
+    this.currentPiece.isVertical = !this.currentPiece.isVertical;
+    return positions;
+  }
+
+  isValidRotation(positions) {
+    return !positions.some(([row, col]) => this.isOutOfBounds(row, col) || this.hasCollision(row, col));
+  }
+
+  isOutOfBounds(row, col) {
+    return row < 0 || row >= this.nrow || col < 0 || col >= this.ncol;
+  }
+
+  hasCollision(row, col) {
+    return this.board[row][col] === 1 && !this.isPartOfCurrentPiece(row, col);
   }
 
   // Helper method to check if a position is part of current piece
@@ -287,25 +306,35 @@ export default class Board {
   // --- Completing the roww
 
   resetGame() {
-    // Clear any running interval
+    this.resetIntervals();
+    this.resetBoardState();
+    this.resetVisualBoard();
+    this.hideGameOverScreen();
+    this.showGameBoard();
+    this.createNewPiece();
+  }
+
+  resetIntervals() {
     if (this.currentInterval) {
       clearInterval(this.currentInterval);
       this.currentInterval = null;
     }
-    // clear up the board
-    this.board = this.createEmptyBoard();
+  }
 
-    // find all the cells and change the color to default
+  resetBoardState() {
+    this.board = this.createEmptyBoard();
+  }
+
+  resetVisualBoard() {
     const cells = document.querySelectorAll(".cell");
     cells.forEach((cell) => (cell.style.backgroundColor = this.defaultColor));
+  }
 
-    // hide the gameOver screen
+  hideGameOverScreen() {
     document.querySelector(".game-over-screen").style.display = "none";
+  }
 
-    // unhide the main board
+  showGameBoard() {
     this.domBoard.style.display = "grid";
-
-    // start a new game
-    this.createNewPiece();
   }
 }
