@@ -34,10 +34,6 @@ To run the game locally, follow these steps:
 ## Future Improvements
 
 - Implement additional Tetris shapes and features.
-- Implement dropping effect with **Arrow Drop**.
+- Implement dropping effect with **Arrow Dropdown**.
 - Introduce different speed levels.
 - Add high scoring tracking.
-
-## Acknowledgments
-
-This project was inspired by the classic Tetris game and serves as a practice in applying OOP principles and web development skills.
