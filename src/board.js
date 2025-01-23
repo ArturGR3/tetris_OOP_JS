@@ -4,19 +4,18 @@ export default class Board {
   constructor(nrow, ncol, defaultColor, activeColor, speedLevel) {
     this.nrow = nrow;
     this.ncol = ncol;
-    this.defaultColor = defaultColor; // when the cell is not active
-    this.activeColor = activeColor; // when the cell is active
-    this.speedLevel = speedLevel; // how fast the items are dropping
-    this.currentInterval = null; // Track current interval
+    this.defaultColor = defaultColor;
+    this.activeColor = activeColor;
+    this.speedLevel = speedLevel;
+    this.currentInterval = null;
     this.currentPiece = null;
     this.board = this.createEmptyBoard(); // initializing board with zeros
     this.domBoard = this.createDOMBoard(); // create a DOM object for the board
-    this.setupControls(); // Setup keys strokes
+    this.setupControls();
     this.score = 0;
   }
 
   createEmptyBoard() {
-    // creating a matrix with Os with nrow and ncol
     let arr = [];
     for (let i = 0; i < this.nrow; i++) {
       let row = new Array(this.ncol).fill(0);
@@ -65,18 +64,12 @@ export default class Board {
     this.board[row][col] = 0;
   }
 
-  moveCell(row, col) {
-    // moving cell vertically
-    this.clearCell(row, col);
-    this.updateCell(row + 1, col);
-  }
-
   createNewPiece() {
     let randomColumn = this.getRandomColumn();
 
-    if (this.canSpawnNewPiece(randomColumn)) {
-      this.currentPiece = this.createPiece(randomColumn);
-      this.drawPiece();
+    if (this.canSpawnNewShape(randomColumn)) {
+      this.currentPiece = this.createShape(randomColumn);
+      this.drawShape();
       this.movePieceToStop();
     } else {
       this.showGameOver();
@@ -87,23 +80,21 @@ export default class Board {
     return Math.floor(Math.random() * (this.ncol - 1));
   }
 
-  canSpawnNewPiece(column) {
-    // Checks if the new position/spawn is empty
+  canSpawnNewShape(column) {
     return this.board[0][column] === 0;
   }
 
   getRandomShape() {
     const shapeTypes = [Square, Stick, BrokenStick];
     return shapeTypes[Math.floor(Math.random() * shapeTypes.length)];
-    s;
   }
 
-  createPiece(column) {
+  createShape(column) {
     const PieceType = this.getRandomShape();
     return new PieceType(0, column, this.activeColor);
   }
 
-  drawPiece() {
+  drawShape() {
     let cells = this.currentPiece.getCells();
     cells.forEach(([row, col]) => {
       this.updateCell(row, col);
@@ -118,7 +109,7 @@ export default class Board {
     if (this.canMoveLeft()) {
       this.clearCurrentShape();
       this.currentPiece.moveLeft();
-      this.drawPiece();
+      this.drawShape();
     }
   }
 
@@ -137,7 +128,7 @@ export default class Board {
     if (this.canMoveRight()) {
       this.clearCurrentShape();
       this.currentPiece.moveRight();
-      this.drawPiece();
+      this.drawShape();
     }
   }
   canMoveRight() {
@@ -219,7 +210,7 @@ export default class Board {
       this.clearCell(r, c);
     });
     this.currentPiece.moveDown();
-    this.drawPiece();
+    this.drawShape();
   }
 
   canRotate() {
@@ -256,16 +247,14 @@ export default class Board {
   }
 
   rotatePiece() {
-    console.log(this.canRotate());
     if (this.currentPiece && this.canRotate()) {
       // Only rotate if we can
-      this.currentPiece.getCells().forEach(([r, c]) => {
-        this.clearCell(r, c);
-      });
+      this.clearCurrentShape();
       this.currentPiece.rotatePiece();
-      this.drawPiece();
+      this.drawShape();
     }
   }
+
   // --- Completing the roww
   removeRowIfFilled() {
     for (let row = 0; row < this.board.length; row++) {
