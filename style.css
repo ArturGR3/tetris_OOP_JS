@@ -1,58 +1,61 @@
-/* Create tetris game  */
-
-.game-container {
+/* Main game block  */
+.game {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.controls {
+.game__controls {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 10vh; /* Adjust to fill the viewport height */
+  height: 10vh;
   width: 75vh;
   margin-bottom: 1vh;
   padding: 1vh;
   position: relative;
 }
 
-.guides {
-  display: flex;
-  justify-content: space-around;
-  background-color: antiquewhite;
-  font-size: 2vh;
-}
-
-.guide-item {
-  display: flex;
-  flex-direction: row;
-}
-
-.guides img {
-  height: 5vh;
-  width: auto;
-  padding-left: 1vh;
-  padding-right: 2vh;
-}
-
-#start-button {
-  background-color: aqua;
-  padding: 3vh;
-}
-
-#board {
+.game__board {
   position: relative;
   display: grid;
   gap: 1px;
-  width: 100%;
   height: 75vh;
   width: 75vh;
   border: 1vh solid black;
   margin: auto;
 }
 
-#game-over-screen {
+.controls__start-button {
+  background-color: aqua;
+  padding: 3vh;
+}
+
+.controls__guides {
+  display: flex;
+  justify-content: space-around;
+  background-color: antiquewhite;
+  font-size: 2vh;
+}
+
+.controls__score {
+  display: flex;
+  align-items: center;
+}
+
+.guides-item {
+  display: flex;
+  flex-direction: row;
+}
+
+.guides-item img {
+  height: 5vh;
+  width: auto;
+  padding-left: 1vh;
+  padding-right: 2vh;
+}
+
+.game-over-screen {
   position: fixed;
   top: 0;
   left: 0;
@@ -64,25 +67,20 @@
   align-items: center;
 }
 
-.game-over-content {
+.game-over-screen__content {
   background-color: white;
   padding: 5vh;
   border-radius: 10vh;
   text-align: center;
 }
 
-.scorediv {
-  display: flex;
-  align-items: center;
-}
-
-#score {
+.score {
   background-color: hsl(114, 19%, 89%);
   margin-right: 2vh; /* Added space between score and scorePoints */
   font-weight: bold;
 }
 
-#score-points {
+.score-points {
   color: black;
   background-color: rgb(143, 243, 130);
   padding: 0vh 1vh 0vh 1vh;

@@ -27,7 +27,7 @@ export default class Board {
 
   createDOMBoard() {
     // creating a DOM object for each cell in my matrix with ability to access with data-row and data-col
-    let board = document.getElementById("board");
+    let board = document.querySelector(".game__board");
 
     // Set the grid template columns and rows based on ncol and nrow
     board.style.gridTemplateColumns = `repeat(${this.ncol}, 1fr)`;
@@ -47,7 +47,7 @@ export default class Board {
   }
 
   getCell(row, col) {
-    return document.querySelector(`#board .cell[data-row='${row}'][data-col='${col}']`);
+    return document.querySelector(`.game__board .cell[data-row='${row}'][data-col='${col}']`);
   }
 
   updateCell(row, col) {
@@ -93,16 +93,25 @@ export default class Board {
 
   createNewPiece() {
     // creating a new piece
-    let randomColumn = Math.floor(Math.random() * (this.ncol - 1)); // create a random column to start (might be changed for a given Piece)
+    let randomColumn = this.getRandomColumn(); // create a random column to start (might be changed for a given Piece)
 
     if (this.canSpawnNewPiece(randomColumn)) {
-      let pieceType = [Square, Stick, BrokenStick][Math.floor(Math.random() * 3)];
-      this.currentPiece = new pieceType(0, randomColumn, this.activeColor);
+      let shapeType = this.getRandomShape();
+      this.currentPiece = new shapeType(0, randomColumn, this.activeColor);
       this.drawPiece();
       this.movePieceToStop();
     } else {
-      document.getElementById("game-over-screen").style.display = "flex";
+      document.querySelector(".game-over-screen").style.display = "flex";
     }
+  }
+
+  getRandomColumn() {
+    return Math.floor(Math.random() * (this.ncol - 1));
+  }
+
+  getRandomShape() {
+    const shapeTypes = [Square, Stick, BrokenStick];
+    return shapeTypes[Math.floor(Math.random() * shapeTypes.length)];
   }
 
   canMoveLeft() {
@@ -168,8 +177,8 @@ export default class Board {
     });
 
     // Button controls
-    ["start-button", "restart-button"].forEach((buttonId) => {
-      document.getElementById(buttonId).addEventListener("click", () => {
+    [".controls__start-button", ".restart-button"].forEach((buttonId) => {
+      document.querySelector(buttonId).addEventListener("click", () => {
         this.resetGame();
       });
     });
@@ -235,7 +244,7 @@ export default class Board {
 
   scoring() {
     this.score++;
-    let scoreDom = document.getElementById("score-points");
+    let scoreDom = document.querySelector(".score-points");
     scoreDom.innerText = this.score;
   }
 
@@ -275,7 +284,7 @@ export default class Board {
     cells.forEach((cell) => (cell.style.backgroundColor = this.defaultColor));
 
     // hide the gameOver screen
-    document.getElementById("game-over-screen").style.display = "none";
+    document.querySelector(".game-over-screen").style.display = "none";
 
     // unhide the main board
     this.domBoard.style.display = "grid";

@@ -3,4 +3,4 @@
 import Board from "./board.js";
 
 // console.log("Board");
-const newBoard = new Board(20, 10, "grey", "green", 200);
+const newBoard = new Board(20, 10, "grey", "green", 10);
