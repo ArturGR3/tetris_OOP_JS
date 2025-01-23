@@ -15,6 +15,7 @@ export default class Board {
     this.score = 0;
   }
 
+  // --- Board Initialization
   createEmptyBoard() {
     let arr = [];
     for (let i = 0; i < this.nrow; i++) {
@@ -25,10 +26,8 @@ export default class Board {
   }
 
   createDOMBoard() {
-    // creating a DOM object for each cell in my matrix with ability to access with data-row and data-col
     let board = document.querySelector(".game__board");
 
-    // Set the grid template columns and rows based on ncol and nrow
     board.style.gridTemplateColumns = `repeat(${this.ncol}, 1fr)`;
     board.style.gridTemplateRows = `repeat(${this.nrow}, 1fr)`;
 
@@ -44,25 +43,7 @@ export default class Board {
     }
     return board;
   }
-
-  getCell(row, col) {
-    return document.querySelector(`.game__board .cell[data-row='${row}'][data-col='${col}']`);
-  }
-
-  updateCell(row, col) {
-    // turning the cell into active cell, by changing its color and status from 0 to 1
-    let cell = this.getCell(row, col);
-    cell.style.backgroundColor = this.activeColor;
-    this.board[row][col] = 1;
-  }
-
-  clearCell(row, col) {
-    // turning it back to inactive status (from 1 to 0 and from active color to default)
-    let cell = this.getCell(row, col);
-    // console.log(cell);
-    cell.style.backgroundColor = this.defaultColor;
-    this.board[row][col] = 0;
-  }
+  // ========
 
   createNewPiece() {
     let randomColumn = this.getRandomColumn();
@@ -74,6 +55,92 @@ export default class Board {
     } else {
       this.showGameOver();
     }
+  }
+
+  moveShapeLeft() {
+    if (this.canMoveLeft()) {
+      this.clearCurrentShape();
+      this.currentPiece.moveLeft();
+      this.drawShape();
+    }
+  }
+
+  moveShapeRight() {
+    if (this.canMoveRight()) {
+      this.clearCurrentShape();
+      this.currentPiece.moveRight();
+      this.drawShape();
+    }
+  }
+
+  moveCurrentShapeDown() {
+    this.currentPiece.getCells().forEach(([r, c]) => {
+      this.clearCell(r, c);
+    });
+    this.currentPiece.moveDown();
+    this.drawShape();
+  }
+
+  rotateShape() {
+    if (this.currentPiece && this.canRotate()) {
+      this.clearCurrentShape();
+      this.currentPiece.rotateFlg();
+      this.drawShape();
+    }
+  }
+
+  handlePieceMovement() {
+    if (this.willCollide()) {
+      this.handleCollision();
+    } else {
+      this.moveCurrentShapeDown();
+    }
+  }
+
+  willCollide() {
+    let bottomCells = this.currentPiece.getBottomCells();
+    return bottomCells.some(([r, c]) => this.stopMove(r + 1, c));
+  }
+
+  handleCollision() {
+    this.stopInterval();
+    this.removeRowIfFilled();
+    this.createNewPiece();
+  }
+
+  removeRowIfFilled() {
+    for (let row = 0; row < this.board.length; row++) {
+      if (this.isRowComplete(row)) {
+        this.scoreIt();
+        this.collapseWhenComplete(row);
+        this.updateVisualBoard();
+      }
+    }
+  }
+
+  resetGame() {
+    this.resetIntervals();
+    this.resetBoardState();
+    this.resetVisualBoard();
+    this.hideGameOverScreen();
+    this.showGameBoard();
+    this.createNewPiece();
+  }
+
+  getCell(row, col) {
+    return document.querySelector(`.game__board .cell[data-row='${row}'][data-col='${col}']`);
+  }
+
+  activateCell(row, col) {
+    let cell = this.getCell(row, col);
+    cell.style.backgroundColor = this.activeColor;
+    this.board[row][col] = 1;
+  }
+
+  clearCell(row, col) {
+    let cell = this.getCell(row, col);
+    cell.style.backgroundColor = this.defaultColor;
+    this.board[row][col] = 0;
   }
 
   getRandomColumn() {
@@ -90,27 +157,19 @@ export default class Board {
   }
 
   createShape(column) {
-    const PieceType = this.getRandomShape();
-    return new PieceType(0, column, this.activeColor);
+    const currentShape = this.getRandomShape();
+    return new currentShape(0, column, this.activeColor);
   }
 
   drawShape() {
     let cells = this.currentPiece.getCells();
     cells.forEach(([row, col]) => {
-      this.updateCell(row, col);
+      this.activateCell(row, col);
     });
   }
 
   showGameOver() {
     document.querySelector(".game-over-screen").style.display = "flex";
-  }
-
-  moveShapeLeft() {
-    if (this.canMoveLeft()) {
-      this.clearCurrentShape();
-      this.currentPiece.moveLeft();
-      this.drawShape();
-    }
   }
 
   canMoveLeft() {
@@ -124,13 +183,6 @@ export default class Board {
     });
   }
 
-  moveShapeRight() {
-    if (this.canMoveRight()) {
-      this.clearCurrentShape();
-      this.currentPiece.moveRight();
-      this.drawShape();
-    }
-  }
   canMoveRight() {
     let rightCells = this.currentPiece.getRightCells();
     return !rightCells.some(([row, col]) => col >= this.ncol - 1 || this.board[row][col + 1] === 1);
@@ -154,7 +206,7 @@ export default class Board {
     const keyActions = {
       ArrowLeft: () => this.moveShapeLeft(),
       ArrowRight: () => this.moveShapeRight(),
-      Shift: () => this.rotatePiece(),
+      Shift: () => this.rotateShape(),
     };
 
     if (keyActions[e.key]) {
@@ -177,40 +229,13 @@ export default class Board {
     }, this.speedLevel);
   }
 
-  handlePieceMovement() {
-    if (this.willCollide()) {
-      this.handleCollision();
-    } else {
-      this.moveCurrentPieceDown();
-    }
-  }
-
-  willCollide() {
-    let bottomCells = this.currentPiece.getBottomCells();
-    return bottomCells.some(([r, c]) => this.stopMove(r + 1, c));
-  }
-
   stopMove(row, col) {
     return row >= this.nrow || this.board[row][col] === 1;
-  }
-
-  handleCollision() {
-    this.stopInterval();
-    this.removeRowIfFilled();
-    this.createNewPiece();
   }
 
   stopInterval() {
     clearInterval(this.currentInterval);
     this.currentInterval = null;
-  }
-
-  moveCurrentPieceDown() {
-    this.currentPiece.getCells().forEach(([r, c]) => {
-      this.clearCell(r, c);
-    });
-    this.currentPiece.moveDown();
-    this.drawShape();
   }
 
   canRotate() {
@@ -241,29 +266,8 @@ export default class Board {
     return this.board[row][col] === 1 && !this.isPartOfCurrentPiece(row, col);
   }
 
-  // Helper method to check if a position is part of current piece
   isPartOfCurrentPiece(row, col) {
     return this.currentPiece.getCells().some(([r, c]) => r === row && c === col);
-  }
-
-  rotatePiece() {
-    if (this.currentPiece && this.canRotate()) {
-      // Only rotate if we can
-      this.clearCurrentShape();
-      this.currentPiece.rotatePiece();
-      this.drawShape();
-    }
-  }
-
-  // --- Completing the roww
-  removeRowIfFilled() {
-    for (let row = 0; row < this.board.length; row++) {
-      if (this.isRowComplete(row)) {
-        this.scoreIt();
-        this.collapseWhenComplete(row);
-        this.updateVisualBoard();
-      }
-    }
   }
 
   scoreIt() {
@@ -285,7 +289,7 @@ export default class Board {
     for (let row = 0; row < this.board.length; row++) {
       for (let col = 0; col < this.board[row].length; col++) {
         if (this.board[row][col] === 1) {
-          this.updateCell(row, col);
+          this.activateCell(row, col);
         } else {
           this.clearCell(row, col);
         }
@@ -293,15 +297,6 @@ export default class Board {
     }
   }
   // --- Completing the roww
-
-  resetGame() {
-    this.resetIntervals();
-    this.resetBoardState();
-    this.resetVisualBoard();
-    this.hideGameOverScreen();
-    this.showGameBoard();
-    this.createNewPiece();
-  }
 
   resetIntervals() {
     if (this.currentInterval) {

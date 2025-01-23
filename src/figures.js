@@ -1,4 +1,4 @@
-export default class Piece {
+export default class Shape {
   constructor(row, col, color) {
     this.row = row;
     this.col = col;
@@ -24,7 +24,7 @@ export default class Piece {
   }
 }
 
-export class Square extends Piece {
+export class Square extends Shape {
   getCells() {
     return [
       [this.row, this.col], // top-left
@@ -59,7 +59,7 @@ export class Square extends Piece {
   }
 }
 
-export class Stick extends Piece {
+export class Stick extends Shape {
   getCells() {
     return this.isVertical
       ? [
@@ -100,7 +100,7 @@ export class Stick extends Piece {
   }
 }
 
-export class BrokenStick extends Piece {
+export class BrokenStick extends Shape {
   constructor(row, col, color) {
     super(row, col, color);
     this.isVertical = true; // Initial orientation
