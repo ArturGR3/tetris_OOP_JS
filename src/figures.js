@@ -6,11 +6,6 @@ export default class Shape {
     this.isVertical = false;
   }
 
-  // // Common method that each shape will implement
-  // getBottomCells() {
-  //   throw new Error("Each shape must implement getBottomCells");
-  // }
-
   moveLeft() {
     this.col -= 1;
   }

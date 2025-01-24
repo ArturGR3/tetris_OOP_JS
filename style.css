@@ -13,11 +13,11 @@
   width: 75vh;
   margin-bottom: 1vh;
   padding: 1vh;
-  position: relative;
+  /* position: relative; */
 }
 
 .game__board {
-  position: relative;
+  /* position: relative; */
   display: grid;
   gap: 1px;
   height: 75vh;
