@@ -1,0 +1,24 @@
+{
+  "name": "tetris_oop_js",
+  "version": "1.0.0",
+  "description": "## Project Overview",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ArturGR3/tetris_OOP_JS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ArturGR3/tetris_OOP_JS/issues"
+  },
+  "homepage": "https://github.com/ArturGR3/tetris_OOP_JS#readme",
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

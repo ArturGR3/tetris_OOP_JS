@@ -1,31 +1,29 @@
-export default class Shape {
-  constructor(row, col, color) {
-    this.row = row;
-    this.col = col;
-    this.color = color;
-    this.isVertical = false;
-  }
+export type Coordinate = [number, number];
 
-  // // Common method that each shape will implement
-  // getBottomCells() {
-  //   throw new Error("Each shape must implement getBottomCells");
-  // }
+export abstract class Shape {
+  constructor(public row: number, public col: number, public color: string, public isVertical: boolean = false) {}
 
-  moveLeft() {
+  abstract getBottomCells(): Coordinate[];
+  abstract getCells(): Coordinate[];
+  abstract getLeftCells(): Coordinate[];
+  abstract getRightCells(): Coordinate[];
+  abstract rotateFlg(): void;
+
+  moveLeft(): void {
     this.col -= 1;
   }
 
-  moveRight() {
+  moveRight(): void {
     this.col += 1;
   }
 
-  moveDown() {
+  moveDown(): void {
     this.row += 1;
   }
 }
 
 export class Square extends Shape {
-  getCells() {
+  getCells(): Coordinate[] {
     return [
       [this.row, this.col],
       [this.row, this.col + 1],
@@ -33,24 +31,24 @@ export class Square extends Shape {
       [this.row + 1, this.col + 1],
     ];
   }
-  rotateFlg() {
+  rotateFlg(): void {
     this.isVertical;
   }
-  getBottomCells() {
+  getBottomCells(): Coordinate[] {
     return [
       [this.row + 1, this.col],
       [this.row + 1, this.col + 1],
     ];
   }
 
-  getLeftCells() {
+  getLeftCells(): Coordinate[] {
     return [
       [this.row, this.col],
       [this.row + 1, this.col],
     ];
   }
 
-  getRightCells() {
+  getRightCells(): Coordinate[] {
     return [
       [this.row, this.col + 1],
       [this.row + 1, this.col + 1],
@@ -59,7 +57,7 @@ export class Square extends Shape {
 }
 
 export class Stick extends Shape {
-  getCells() {
+  getCells(): Coordinate[] {
     return this.isVertical
       ? [
           [this.row, this.col],
@@ -71,15 +69,15 @@ export class Stick extends Shape {
         ];
   }
 
-  rotateFlg() {
+  rotateFlg(): void {
     this.isVertical = !this.isVertical;
   }
 
-  getBottomCells() {
+  getBottomCells(): Coordinate[] {
     return this.isVertical ? [[this.row + 1, this.col]] : this.getCells();
   }
 
-  getLeftCells() {
+  getLeftCells(): Coordinate[] {
     return this.isVertical
       ? [
           [this.row, this.col],
@@ -88,7 +86,7 @@ export class Stick extends Shape {
       : [[this.row, this.col]];
   }
 
-  getRightCells() {
+  getRightCells(): Coordinate[] {
     return this.isVertical
       ? [
           [this.row, this.col],
@@ -99,12 +97,7 @@ export class Stick extends Shape {
 }
 
 export class BrokenStick extends Shape {
-  constructor(row, col, color) {
-    super(row, col, color);
-    this.isVertical = true; // Initial orientation
-  }
-
-  getCells() {
+  getCells(): Coordinate[] {
     return this.isVertical
       ? [
           [this.row, this.col],
@@ -120,11 +113,11 @@ export class BrokenStick extends Shape {
         ];
   }
 
-  rotateFlg() {
+  rotateFlg(): void {
     this.isVertical = !this.isVertical;
   }
 
-  getBottomCells() {
+  getBottomCells(): Coordinate[] {
     return this.isVertical
       ? [
           [this.row + 1, this.col],
@@ -136,25 +129,21 @@ export class BrokenStick extends Shape {
         ];
   }
 
-  getLeftCells() {
+  getLeftCells(): Coordinate[] {
     return this.isVertical
       ? [
-          [this.row, this.col], // top-left
-          [this.row + 1, this.col], // middle-left
+          [this.row, this.col],
+          [this.row + 1, this.col],
         ]
-      : [
-          [this.row, this.col], // top-left
-        ];
+      : [[this.row, this.col]];
   }
 
-  getRightCells() {
+  getRightCells(): Coordinate[] {
     return this.isVertical
       ? [
-          [this.row + 1, this.col + 1], // middle-right
-          [this.row + 2, this.col + 1], // bottom-right
+          [this.row + 1, this.col + 1],
+          [this.row + 2, this.col + 1],
         ]
-      : [
-          [this.row + 1, this.col + 2], // bottom-right
-        ];
+      : [[this.row + 1, this.col + 2]];
   }
 }
